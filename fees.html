@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University Fees Management System</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Moment.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --light-bg: #ecf0f1;
+            --dark-text: #2c3e50;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .wrapper {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        #sidebar {
+            min-width: 250px;
+            max-width: 250px;
+            background: var(--primary-color);
+            color: #fff;
+            transition: all 0.3s;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        #sidebar.active {
+            margin-left: -250px;
+        }
+
+        #sidebar .sidebar-header {
+            padding: 20px;
+            background: #34495e;
+            text-align: center;
+            border-bottom: 1px solid #455a64;
+        }
+
+        #sidebar ul.components {
+            padding: 20px 0;
+        }
+
+        #sidebar ul li a {
+            padding: 15px 20px;
+            display: block;
+            color: #fff;
+            text-decoration: none;
+            transition: 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        #sidebar ul li a:hover {
+            background: #34495e;
+            border-left-color: var(--secondary-color);
+        }
+
+        #sidebar ul li.active a {
+            background: #34495e;
+            border-left-color: var(--secondary-color);
+        }
+
+        #sidebar ul li a i {
+            margin-right: 10px;
+            width: 20px;
+        }
+
+        /* Content Styles */
+        #content {
+            width: 100%;
+            padding: 20px;
+            min-height: 100vh;
+            transition: all 0.3s;
+            background: rgba(255,255,255,0.95);
+        }
+
+        /* Navbar */
+        .navbar-custom {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        /* Cards */
+        .dashboard-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--dark-text);
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        /* Tables */
+        .table-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .table thead th {
+            border-bottom: 2px solid var(--secondary-color);
+            color: var(--dark-text);
+            font-weight: 600;
+        }
+
+        .badge-paid {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        .badge-pending {
+            background: linear-gradient(135deg, #f39c12, #f1c40f);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        .badge-overdue {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        /* Buttons */
+        .btn-custom {
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+
+        .btn-custom-primary {
+            background: linear-gradient(135deg, var(--secondary-color), #2980b9);
+            color: white;
+            border: none;
+        }
+
+        .btn-custom-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        /* Modal */
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary-color), #34495e);
+            color: white;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .modal-header .btn-close {
+            color: white;
+        }
+
+        /* Form Controls */
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            padding: 12px;
+            margin-bottom: 15px;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+
+        /* Animations */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-slide {
+            animation: slideIn 0.5s ease forwards;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            #sidebar {
+                margin-left: -250px;
+            }
+            #sidebar.active {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <h4><i class="fas fa-university me-2"></i>EduFee Manager</h4>
+                <p class="small mb-0">University Fees System</p>
+            </div>
+
+            <ul class="components">
+                <li class="active">
+                    <a href="#" onclick="showSection('dashboard')">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="#" onclick="showSection('students')">
+                        <i class="fas fa-users"></i> Students
+                    </a>
+                </li>
+                <li>
+                    <a href="#" onclick="showSection('fees')">
+                        <i class="fas fa-money-bill-wave"></i> Fee Management
+                    </a>
+                </li>
+                <li>
+                    <a href="#" onclick="showSection('payments')">
+                        <i class="fas fa-credit-card"></i> Payments
+                    </a>
+                </li>
+                <li>
+                    <a href="#" onclick="showSection('reports')">
+                        <i class="fas fa-chart-bar"></i> Reports
+                    </a>
+                </li>
+                <li>
+                    <a href="#" onclick="showSection('settings')">
+                        <i class="fas fa-cog"></i> Settings
+                    </a>
+                </li>
+            </ul>
+
+            <div class="p-3 border-top border-secondary">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-user-circle fa-2x me-2"></i>
+                    <div>
+                        <p class="mb-0 small">Admin User</p>
+                        <p class="mb-0 small text-muted">admin@university.edu</p>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Page Content -->
+        <div id="content">
+            <!-- Navbar -->
+            <nav class="navbar navbar-custom">
+                <div class="container-fluid">
+                    <button type="button" id="sidebarCollapse" class="btn btn-outline-secondary">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="d-flex">
+                        <div class="dropdown me-3">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-bell"></i>
+                                <span class="badge bg-danger">3</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="#">5 payments pending</a></li>
+                                <li><a class="dropdown-item" href="#">2 overdue fees</a></li>
+                                <li><a class="dropdown-item" href="#">New student registered</a></li>
+                            </ul>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user"></i> Profile
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="#">Settings</a></li>
+                                <li><a class="dropdown-item" href="#">Logout</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Dashboard Section -->
+            <div id="dashboard-section" class="content-section">
+                <h2 class="mb-4">Dashboard Overview</h2>
+                
+                <!-- Statistics Cards -->
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="dashboard-card">
+                            <div class="card-icon" style="background: #e8f5e9; color: #27ae60;">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-value" id="totalStudents">0</div>
+                            <div class="stat-label">Total Students</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="dashboard-card">
+                            <div class="card-icon" style="background: #e3f2fd; color: #3498db;">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                            <div class="stat-value" id="totalFees">$0</div>
+                            <div class="stat-label">Total Fees Collected</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="dashboard-card">
+                            <div class="card-icon" style="background: #fff3e0; color: #f39c12;">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-value" id="pendingFees">$0</div>
+                            <div class="stat-label">Pending Fees</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="dashboard-card">
+                            <div class="card-icon" style="background: #fbe9e7; color: #e74c3c;">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="stat-value" id="overdueFees">0</div>
+                            <div class="stat-label">Overdue Payments</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="dashboard-card">
+                            <h5>Fee Collection Trend</h5>
+                            <canvas id="feeChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="dashboard-card">
+                            <h5>Payment Status Distribution</h5>
+                            <canvas id="paymentChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Payments -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="table-container">
+                            <h5 class="mb-3">Recent Payments</h5>
+                            <table class="table" id="recentPaymentsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Student ID</th>
+                                        <th>Student Name</th>
+                                        <th>Amount</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recentPaymentsBody">
+                                    <!-- Dynamic content will be inserted here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Students Section -->
+            <div id="students-section" class="content-section" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>Student Management</h2>
+                    <button class="btn btn-custom-primary" onclick="openAddStudentModal()">
+                        <i class="fas fa-plus"></i> Add Student
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table class="table" id="studentsTable">
+                        <thead>
+                            <tr>
+                                <th>Student ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Course</th>
+                                <th>Year</th>
+                                <th>Total Fees</th>
+                                <th>Paid</th>
+                                <th>Balance</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentsBody">
+                            <!-- Dynamic content will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Fee Management Section -->
+            <div id="fees-section" class="content-section" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>Fee Management</h2>
+                    <button class="btn btn-custom-primary" onclick="openAddFeeModal()">
+                        <i class="fas fa-plus"></i> Add Fee Structure
+                    </button>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="dashboard-card">
+                            <h5>Fee Structure by Course</h5>
+                            <div id="feeStructureList">
+                                <!-- Dynamic content will be inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="table-container">
+                            <table class="table" id="feeTable">
+                                <thead>
+                                    <tr>
+                                        <th>Fee ID</th>
+                                        <th>Course</th>
+                                        <th>Year</th>
+                                        <th>Tuition Fee</th>
+                                        <th>Library Fee</th>
+                                        <th>Lab Fee</th>
+                                        <th>Sports Fee</th>
+                                        <th>Total</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="feeBody">
+                                    <!-- Dynamic content will be inserted here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payments Section -->
+            <div id="payments-section" class="content-section" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>Payment Records</h2>
+                    <button class="btn btn-custom-primary" onclick="openRecordPaymentModal()">
+                        <i class="fas fa-credit-card"></i> Record Payment
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table class="table" id="paymentsTable">
+                        <thead>
+                            <tr>
+                                <th>Transaction ID</th>
+                                <th>Student ID</th>
+                                <th>Student Name</th>
+                                <th>Amount</th>
+                                <th>Payment Date</th>
+                                <th>Payment Method</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="paymentsBody">
+                            <!-- Dynamic content will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Reports Section -->
+            <div id="reports-section" class="content-section" style="display: none;">
+                <h2 class="mb-4">Financial Reports</h2>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="dashboard-card">
+                            <h5>Generate Report</h5>
+                            <form id="reportForm">
+                                <select class="form-select mb-3" id="reportType">
+                                    <option value="monthly">Monthly Collection Report</option>
+                                    <option value="yearly">Yearly Summary</option>
+                                    <option value="course">Course-wise Collection</option>
+                                    <option value="pending">Pending Fees Report</option>
+                                </select>
+                                <input type="month" class="form-control mb-3" id="reportMonth">
+                                <button type="button" class="btn btn-custom-primary" onclick="generateReport()">
+                                    Generate Report
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="dashboard-card">
+                            <h5>Quick Stats</h5>
+                            <div id="quickStats">
+                                <!-- Dynamic stats will be inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="table-container" id="reportResults" style="display: none;">
+                            <h5>Report Results</h5>
+                            <table class="table">
+                                <thead id="reportHeaders"></thead>
+                                <tbody id="reportBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Section -->
+            <div id="settings-section" class="content-section" style="display: none;">
+                <h2 class="mb-4">System Settings</h2>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="dashboard-card">
+                            <h5>General Settings</h5>
+                            <form>
+                                <div class="mb-3">
+                                    <label class="form-label">University Name</label>
+                                    <input type="text" class="form-control" value="State University" id="universityName">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Academic Year</label>
+                                    <input type="text" class="form-control" value="2024-2025" id="academicYear">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Currency</label>
+                                    <select class="form-select" id="currency">
+                                        <option value="USD" selected>USD ($)</option>
+                                        <option value="EUR">EUR (€)</option>
+                                        <option value="GBP">GBP (£)</option>
+                                    </select>
+                                </div>
+                                <button type="button" class="btn btn-custom-primary" onclick="saveSettings()">
+                                    Save Settings
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="dashboard-card">
+                            <h5>Notification Settings</h5>
+                            <form>
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
+                                    <label class="form-check-label">Email Notifications</label>
+                                </div>
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="smsNotifications">
+                                    <label class="form-check-label">SMS Notifications</label>
+                                </div>
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="dueReminders" checked>
+                                    <label class="form-check-label">Due Date Reminders</label>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Student Modal -->
+    <div class="modal fade" id="addStudentModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Student</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addStudentForm">
+                        <input type="text" class="form-control" placeholder="Full Name" id="studentName" required>
+                        <input type="email" class="form-control" placeholder="Email" id="studentEmail" required>
+                        <input type="text" class="form-control" placeholder="Phone" id="studentPhone" required>
+                        <select class="form-select" id="studentCourse" required>
+                            <option value="">Select Course</option>
+                            <option value="Computer Science">Computer Science</option>
+                            <option value="Engineering">Engineering</option>
+                            <option value="Business">Business</option>
+                            <option value="Arts">Arts</option>
+                        </select>
+                        <select class="form-select" id="studentYear" required>
+                            <option value="">Select Year</option>
+                            <option value="1">1st Year</option>
+                            <option value="2">2nd Year</option>
+                            <option value="3">3rd Year</option>
+                            <option value="4">4th Year</option>
+                        </select>
+                        <input type="text" class="form-control" placeholder="Address" id="studentAddress">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-custom-primary" onclick="addStudent()">Add Student</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Record Payment Modal -->
+    <div class="modal fade" id="recordPaymentModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Record Payment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="paymentForm">
+                        <select class="form-select" id="paymentStudent" required>
+                            <option value="">Select Student</option>
+                        </select>
+                        <input type="number" class="form-control" placeholder="Amount" id="paymentAmount" required>
+                        <select class="form-select" id="paymentMethod" required>
+                            <option value="">Select Payment Method</option>
+                            <option value="Cash">Cash</option>
+                            <option value="Credit Card">Credit Card</option>
+                            <option value="Debit Card">Debit Card</option>
+                            <option value="Bank Transfer">Bank Transfer</option>
+                            <option value="Check">Check</option>
+                        </select>
+                        <input type="date" class="form-control" id="paymentDate" required>
+                        <textarea class="form-control" placeholder="Notes" id="paymentNotes" rows="3"></textarea>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-custom-primary" onclick="recordPayment()">Record Payment</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // State Management
+        let appState = {
+            students: [],
+            fees: [],
+            payments: [],
+            settings: {
+                universityName: 'State University',
+                academicYear: '2024-2025',
+                currency: 'USD',
+                notifications: {
+                    email: true,
+                    sms: false,
+                    reminders: true
+                }
+            }
+        };
+
+        // Sample Data Initialization
+        function initializeSampleData() {
+            // Sample Students
+            appState.students = [
+                { id: 'STU001', name: 'John Doe', email: 'john@university.edu', phone: '1234567890', course: 'Computer Science', year: 2, address: '123 Main St', totalFees: 5000, paidAmount: 3500, status: 'active' },
+                { id: 'STU002', name: 'Jane Smith', email: 'jane@university.edu', phone: '0987654321', course: 'Engineering', year: 3, address: '456 Oak Ave', totalFees: 6000, paidAmount: 6000, status: 'active' },
+                { id: 'STU003', name: 'Bob Johnson', email: 'bob@university.edu', phone: '5555555555', course: 'Business', year: 1, address: '789 Pine Rd', totalFees: 4500, paidAmount: 2000, status: 'active' },
+            ];
+
+            // Sample Fee Structures
+            appState.fees = [
+                { id: 'FEE001', course: 'Computer Science', year: 1, tuition: 3000, library: 200, lab: 300, sports: 100, total: 3600 },
+                { id: 'FEE002', course: 'Computer Science', year: 2, tuition: 3200, library: 200, lab: 300, sports: 100, total: 3800 },
+                { id: 'FEE003', course: 'Engineering', year: 1, tuition: 3500, library: 200, lab: 400, sports: 100, total: 4200 },
+                { id: 'FEE004', course: 'Business', year: 1, tuition: 2800, library: 200, lab: 0, sports: 100, total: 3100 },
+            ];
+
+            // Sample Payments
+            appState.payments = [
+                { id: 'PAY001', studentId: 'STU001', studentName: 'John Doe', amount: 2000, date: '2024-01-15', method: 'Credit Card', status: 'completed' },
+                { id: 'PAY002', studentId: 'STU001', studentName: 'John Doe', amount: 1500, date: '2024-02-15', method: 'Bank Transfer', status: 'completed' },
+                { id: 'PAY003', studentId: 'STU002', studentName: 'Jane Smith', amount: 6000, date: '2024-01-10', method: 'Cash', status: 'completed' },
+                { id: 'PAY004', studentId: 'STU003', studentName: 'Bob Johnson', amount: 2000, date: '2024-01-20', method: 'Credit Card', status: 'completed' },
+            ];
+
+            updateAllTables();
+        }
+
+        // UI Functions
+        function showSection(sectionName) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.style.display = 'none';
+            });
+
+            // Show selected section
+            document.getElementById(`${sectionName}-section`).style.display = 'block';
+
+            // Update active state in sidebar
+            document.querySelectorAll('#sidebar ul li').forEach(li => {
+                li.classList.remove('active');
+            });
+            event.target.closest('li').classList.add('active');
+
+            // Update data based on section
+            if (sectionName === 'dashboard') {
+                updateDashboard();
+            } else if (sectionName === 'students') {
+                updateStudentsTable();
+            } else if (sectionName === 'fees') {
+                updateFeesTable();
+            } else if (sectionName === 'payments') {
+                updatePaymentsTable();
+                updatePaymentStudentDropdown();
+            }
+        }
+
+        // Dashboard Functions
+        function updateDashboard() {
+            // Update statistics
+            document.getElementById('totalStudents').textContent = appState.students.length;
+            
+            const totalFees = appState.payments.reduce((sum, p) => sum + p.amount, 0);
+            document.getElementById('totalFees').textContent = `$${totalFees}`;
+            
+            const pendingFees = appState.students.reduce((sum, s) => sum + (s.totalFees - s.paidAmount), 0);
+            document.getElementById('pendingFees').textContent = `$${pendingFees}`;
+            
+            const overdueCount = appState.students.filter(s => (s.totalFees - s.paidAmount) > 1000).length;
+            document.getElementById('overdueFees').textContent = overdueCount;
+
+            // Update recent payments
+            updateRecentPayments();
+
+            // Update charts
+            updateCharts();
+        }
+
+        function updateRecentPayments() {
+            const recentPayments = appState.payments.slice(-5).reverse();
+            const tbody = document.getElementById('recentPaymentsBody');
+            tbody.innerHTML = '';
+
+            recentPayments.forEach(payment => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${payment.studentId}</td>
+                    <td>${payment.studentName}</td>
+                    <td>$${payment.amount}</td>
+                    <td>${moment(payment.date).format('MMM DD, YYYY')}</td>
+                    <td><span class="badge-paid">Completed</span></td>
+                `;
+            });
+        }
+
+        // Charts
+        let feeChart, paymentChart;
+
+        function updateCharts() {
+            // Fee Collection Trend
+            const ctx1 = document.getElementById('feeChart').getContext('2d');
+            
+            // Group payments by month
+            const monthlyData = {};
+            appState.payments.forEach(p => {
+                const month = moment(p.date).format('MMM YYYY');
+                monthlyData[month] = (monthlyData[month] || 0) + p.amount;
+            });
+
+            const months = Object.keys(monthlyData).slice(-6);
+            const amounts = Object.values(monthlyData).slice(-6);
+
+            if (feeChart) feeChart.destroy();
+            feeChart = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        label: 'Fee Collection',
+                        data: amounts,
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            // Payment Status Distribution
+            const ctx2 = document.getElementById('paymentChart').getContext('2d');
+            
+            const paid = appState.students.filter(s => s.paidAmount >= s.totalFees).length;
+            const partial = appState.students.filter(s => s.paidAmount > 0 && s.paidAmount < s.totalFees).length;
+            const unpaid = appState.students.filter(s => s.paidAmount === 0).length;
+
+            if (paymentChart) paymentChart.destroy();
+            paymentChart = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Fully Paid', 'Partial', 'Unpaid'],
+                    datasets: [{
+                        data: [paid, partial, unpaid],
+                        backgroundColor: ['#27ae60', '#f39c12', '#e74c3c']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Students Table
+        function updateStudentsTable() {
+            const tbody = document.getElementById('studentsBody');
+            tbody.innerHTML = '';
+
+            appState.students.forEach(student => {
+                const balance = student.totalFees - student.paidAmount;
+                const status = balance === 0 ? 'Paid' : balance > 1000 ? 'Overdue' : 'Pending';
+                const statusClass = balance === 0 ? 'badge-paid' : balance > 1000 ? 'badge-overdue' : 'badge-pending';
+
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${student.id}</td>
+                    <td>${student.name}</td>
+                    <td>${student.email}</td>
+                    <td>${student.course}</td>
+                    <td>Year ${student.year}</td>
+                    <td>$${student.totalFees}</td>
+                    <td>$${student.paidAmount}</td>
+                    <td>$${balance}</td>
+                    <td><span class="${statusClass}">${status}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="viewStudent('${student.id}')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteStudent('${student.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+            });
+        }
+
+        // Fees Table
+        function updateFeesTable() {
+            const tbody = document.getElementById('feeBody');
+            tbody.innerHTML = '';
+
+            appState.fees.forEach(fee => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${fee.id}</td>
+                    <td>${fee.course}</td>
+                    <td>Year ${fee.year}</td>
+                    <td>$${fee.tuition}</td>
+                    <td>$${fee.library}</td>
+                    <td>$${fee.lab}</td>
+                    <td>$${fee.sports}</td>
+                    <td>$${fee.total}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="editFee('${fee.id}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteFee('${fee.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+            });
+
+            // Update fee structure list
+            updateFeeStructureList();
+        }
+
+        function updateFeeStructureList() {
+            const container = document.getElementById('feeStructureList');
+            container.innerHTML = '';
+
+            const courses = [...new Set(appState.fees.map(f => f.course))];
+            
+            courses.forEach(course => {
+                const courseFees = appState.fees.filter(f => f.course === course);
+                const html = `
+                    <div class="mb-3 p-2 border-bottom">
+                        <h6 class="text-primary">${course}</h6>
+                        ${courseFees.map(f => `
+                            <div class="d-flex justify-content-between small">
+                                <span>Year ${f.year}:</span>
+                                <span>$${f.total}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                container.innerHTML += html;
+            });
+        }
+
+        // Payments Table
+        function updatePaymentsTable() {
+            const tbody = document.getElementById('paymentsBody');
+            tbody.innerHTML = '';
+
+            appState.payments.forEach(payment => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${payment.id}</td>
+                    <td>${payment.studentId}</td>
+                    <td>${payment.studentName}</td>
+                    <td>$${payment.amount}</td>
+                    <td>${moment(payment.date).format('MMM DD, YYYY')}</td>
+                    <td>${payment.method}</td>
+                    <td><span class="badge-paid">${payment.status}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="viewPayment('${payment.id}')">
+                            <i class="fas fa-receipt"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deletePayment('${payment.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+            });
+        }
+
+        // Student Functions
+        function openAddStudentModal() {
+            document.getElementById('addStudentForm').reset();
+            new bootstrap.Modal(document.getElementById('addStudentModal')).show();
+        }
+
+        function addStudent() {
+            const name = document.getElementById('studentName').value;
+            const email = document.getElementById('studentEmail').value;
+            const phone = document.getElementById('studentPhone').value;
+            const course = document.getElementById('studentCourse').value;
+            const year = document.getElementById('studentYear').value;
+            const address = document.getElementById('studentAddress').value;
+
+            if (!name || !email || !course || !year) {
+                alert('Please fill all required fields');
+                return;
+            }
+
+            // Find fee for this course and year
+            const fee = appState.fees.find(f => f.course === course && f.year == year);
+            const totalFees = fee ? fee.total : 5000;
+
+            const newStudent = {
+                id: `STU${String(appState.students.length + 1).padStart(3, '0')}`,
+                name,
+                email,
+                phone,
+                course,
+                year: parseInt(year),
+                address,
+                totalFees,
+                paidAmount: 0,
+                status: 'active'
+            };
+
+            appState.students.push(newStudent);
+            updateStudentsTable();
+            updateDashboard();
+
+            bootstrap.Modal.getInstance(document.getElementById('addStudentModal')).hide();
+            alert('Student added successfully!');
+        }
+
+        function viewStudent(studentId) {
+            const student = appState.students.find(s => s.id === studentId);
+            if (student) {
+                // Show student details in a modal or navigate to student profile
+                alert(`Student Details:\nName: ${student.name}\nEmail: ${student.email}\nCourse: ${student.course}\nTotal Fees: $${student.totalFees}\nPaid: $${student.paidAmount}`);
+            }
+        }
+
+        function deleteStudent(studentId) {
+            if (confirm('Are you sure you want to delete this student?')) {
+                appState.students = appState.students.filter(s => s.id !== studentId);
+                updateStudentsTable();
+                updateDashboard();
+            }
+        }
+
+        // Payment Functions
+        function openRecordPaymentModal() {
+            updatePaymentStudentDropdown();
+            document.getElementById('paymentForm').reset();
+            document.getElementById('paymentDate').value = moment().format('YYYY-MM-DD');
+            new bootstrap.Modal(document.getElementById('recordPaymentModal')).show();
+        }
+
+        function updatePaymentStudentDropdown() {
+            const select = document.getElementById('paymentStudent');
+            select.innerHTML = '<option value="">Select Student</option>';
+            
+            appState.students.forEach(student => {
+                const balance = student.totalFees - student.paidAmount;
+                if (balance > 0) {
+                    const option = document.createElement('option');
+                    option.value = student.id;
+                    option.textContent = `${student.name} (${student.id}) - Balance: $${balance}`;
+                    select.appendChild(option);
+                }
+            });
+        }
+
+        function recordPayment() {
+            const studentId = document.getElementById('paymentStudent').value;
+            const amount = parseFloat(document.getElementById('paymentAmount').value);
+            const method = document.getElementById('paymentMethod').value;
+            const date = document.getElementById('paymentDate').value;
+            const notes = document.getElementById('paymentNotes').value;
+
+            if (!studentId || !amount || !method || !date) {
+                alert('Please fill all required fields');
+                return;
+            }
+
+            const student = appState.students.find(s => s.id === studentId);
+            
+            if (amount > (student.totalFees - student.paidAmount)) {
+                alert('Payment amount exceeds balance due!');
+                return;
+            }
+
+            // Update student paid amount
+            student.paidAmount += amount;
+
+            // Record payment
+            const newPayment = {
+                id: `PAY${String(appState.payments.length + 1).padStart(3, '0')}`,
+                studentId: student.id,
+                studentName: student.name,
+                amount: amount,
+                date: date,
+                method: method,
+                status: 'completed',
+                notes: notes
+            };
+
+            appState.payments.push(newPayment);
+            
+            updatePaymentsTable();
+            updateDashboard();
+            updateStudentsTable();
+
+            bootstrap.Modal.getInstance(document.getElementById('recordPaymentModal')).hide();
+            alert('Payment recorded successfully!');
+        }
+
+        // Fee Functions
+        function openAddFeeModal() {
+            // Implement add fee modal
+            alert('Add Fee Structure feature coming soon!');
+        }
+
+        // Report Functions
+        function generateReport() {
+            const reportType = document.getElementById('reportType').value;
+            const reportMonth = document.getElementById('reportMonth').value;
+
+            document.getElementById('reportResults').style.display = 'block';
+            
+            if (reportType === 'monthly' && reportMonth) {
+                generateMonthlyReport(reportMonth);
+            } else if (reportType === 'pending') {
+                generatePendingReport();
+            }
+        }
+
+        function generateMonthlyReport(month) {
+            const [year, monthNum] = month.split('-');
+            const monthName = moment(month).format('MMMM YYYY');
+
+            const monthlyPayments = appState.payments.filter(p => 
+                p.date.startsWith(month)
+            );
+
+            const totalCollected = monthlyPayments.reduce((sum, p) => sum + p.amount, 0);
+
+            const headers = document.getElementById('reportHeaders');
+            headers.innerHTML = `
+                <tr>
+                    <th>Date</th>
+                    <th>Student</th>
+                    <th>Amount</th>
+                    <th>Method</th>
+                </tr>
+            `;
+
+            const body = document.getElementById('reportBody');
+            body.innerHTML = '';
+
+            monthlyPayments.forEach(p => {
+                const row = body.insertRow();
+                row.innerHTML = `
+                    <td>${moment(p.date).format('MMM DD, YYYY')}</td>
+                    <td>${p.studentName}</td>
+                    <td>$${p.amount}</td>
+                    <td>${p.method}</td>
+                `;
+            });
+
+            // Add total row
+            const totalRow = body.insertRow();
+            totalRow.innerHTML = `
+                <td colspan="2"><strong>Total for ${monthName}</strong></td>
+                <td><strong>$${totalCollected}</strong></td>
+                <td></td>
+            `;
+        }
+
+        function generatePendingReport() {
+            const headers = document.getElementById('reportHeaders');
+            headers.innerHTML = `
+                <tr>
+                    <th>Student ID</th>
+                    <th>Student Name</th>
+                    <th>Course</th>
+                    <th>Total Fees</th>
+                    <th>Paid</th>
+                    <th>Balance</th>
+                    <th>Status</th>
+                </tr>
+            `;
+
+            const body = document.getElementById('reportBody');
+            body.innerHTML = '';
+
+            appState.students
+                .filter(s => s.paidAmount < s.totalFees)
+                .forEach(student => {
+                    const balance = student.totalFees - student.paidAmount;
+                    const status = balance > 1000 ? 'Overdue' : 'Pending';
+                    
+                    const row = body.insertRow();
+                    row.innerHTML = `
+                        <td>${student.id}</td>
+                        <td>${student.name}</td>
+                        <td>${student.course}</td>
+                        <td>$${student.totalFees}</td>
+                        <td>$${student.paidAmount}</td>
+                        <td>$${balance}</td>
+                        <td><span class="${status === 'Overdue' ? 'badge-overdue' : 'badge-pending'}">${status}</span></td>
+                    `;
+                });
+        }
+
+        // Settings Functions
+        function saveSettings() {
+            appState.settings.universityName = document.getElementById('universityName').value;
+            appState.settings.academicYear = document.getElementById('academicYear').value;
+            appState.settings.currency = document.getElementById('currency').value;
+            
+            appState.settings.notifications.email = document.getElementById('emailNotifications').checked;
+            appState.settings.notifications.sms = document.getElementById('smsNotifications').checked;
+            appState.settings.notifications.reminders = document.getElementById('dueReminders').checked;
+
+            alert('Settings saved successfully!');
+        }
+
+        // Utility Functions
+        function updateAllTables() {
+            updateStudentsTable();
+            updateFeesTable();
+            updatePaymentsTable();
+            updateDashboard();
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeSampleData();
+            
+            // Sidebar toggle
+            document.getElementById('sidebarCollapse').addEventListener('click', function() {
+                document.getElementById('sidebar').classList.toggle('active');
+            });
+
+            // Show dashboard by default
+            showSection('dashboard');
+        });
+    </script>
+</body>
+</html>
