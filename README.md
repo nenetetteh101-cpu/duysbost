@@ -9,10 +9,6 @@ python app.py
 
 Visit: http://localhost:5000
 
-## Default Admin Account
-- Username: `admin`
-- Password: `admin123`
-- Admin panel: http://localhost:5000/admin
 
 ## Features Implemented
 - ✅ Login & Signup (with referral code support)
