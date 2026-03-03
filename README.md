@@ -9,10 +9,6 @@ python app.py
 
 Visit: http://localhost:5000
 
-## Default Admin Account
-- Username: `admin`
-- Password: `admin123`
-- Admin panel: http://localhost:5000/admin
 
 ## Features Implemented
 - ✅ Login & Signup (with referral code support)
@@ -51,9 +47,4 @@ duys_boost/
 │   └── admin.html      # Admin panel (subdomain-ready)
 ```
 
-## Production Notes
-- Replace SQLite with PostgreSQL
-- Integrate Stripe/PayPal/Paystack for real payments
-- Add Google/Facebook OAuth in auth.html social buttons
-- Use Flask-SocketIO for true real-time updates
-- Deploy admin on subdomain via Nginx routing
+
