@@ -427,7 +427,7 @@ def activity_feed():
 if __name__ == '__main__':
     init_db()
     app.run(debug=True)
-    port = int(os.environ.get("PORT", 10000))
-    # Bind to 0.0.0.0 to be accessible externally
+ # Render provides a PORT environment variable. If it's not there, default to 5000.
+    port = int(os.environ.get("PORT", 5000))
+    # Bind to 0.0.0.0 so the app is reachable externally
     app.run(host="0.0.0.0", port=port)
-
